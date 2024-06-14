@@ -1,0 +1,107 @@
+
+class Paddle {
+    field int x;
+    field int vx;
+    field int stepNum;
+    static int W;
+    static int H;
+    static int MAXV;
+
+    constructor Paddle new() {
+        let W = 50;
+        let H = 1;
+        let MAXV = 10;
+        let vx = 0;
+        let stepNum = 0;
+        do resetPosition();
+        do draw();
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method int getX() {
+        return x;
+    }
+
+    method int getVX() {
+        return vx;
+    }
+
+    method int getW() {
+        return W;
+    }
+
+    method void draw() {
+        do Screen.setColor(true);
+        do dr();
+        return;
+    }
+
+    method void erase() {
+        do Screen.setColor(false);
+        do dr();
+        return;
+    }
+
+    method void dr() {
+        do Screen.drawRectangle(x - W, 255 - H, x + W, 255);
+        return;
+    }
+
+    method void resetPosition() {
+        let x = 256;
+        let vx = 0;
+        return;
+    }
+
+    method void moveLeft() {
+        let vx = vx - 1;
+        if ((-MAXV) > vx) {
+            let vx = -MAXV;
+        }
+        return;
+    }
+
+    method void moveRight() {
+        let vx = vx + 1;
+        if (vx > MAXV) {
+            let vx = MAXV;
+        }
+        return;
+    }
+
+    method void animationStep() {
+        do erase();
+
+        let x = x + vx;
+
+        let stepNum = stepNum + 1;
+        if (stepNum = 3) {
+            if (vx > 0) {
+                let vx = vx - 1;
+            }
+            if (vx < 0) {
+                let vx = vx + 1;
+            }
+            let stepNum = 0;
+        }
+
+
+        if ((x + W) > 510) {
+            let x = 510 - W;
+            let vx = -vx;
+        }
+
+        if ((x - W) < 1) {
+            let x = W + 1;
+            let vx = -vx;
+        }
+
+        do draw();
+        return;
+    }
+}

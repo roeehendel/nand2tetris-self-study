@@ -1,0 +1,131 @@
+class BreakoutGame {
+    static string scoreMessage;
+    field Ball ball;
+    field Paddle paddle;
+    field Array bricks;
+    field int numBricks;
+    field int numBricksAlive;
+
+    constructor BreakoutGame new() {
+        var int i, j, numBrickRows, numBricksPerRow, W, H;
+        let i = 0;
+        let j = 0;
+        let numBrickRows = 4;
+        let numBricksPerRow = 8;
+        let numBricks = numBrickRows * numBricksPerRow;
+
+        do Brick.init();
+        let H = Brick.getH();
+        let W = Brick.getW();
+
+        let ball = Ball.new();
+        let paddle = Paddle.new();
+        let bricks = Array.new(numBricks);
+
+        while (i < numBrickRows) {
+            let j = 0;
+            while (j < numBricksPerRow) {
+                let bricks[i * numBricksPerRow + j] = Brick.new(10 + W + (2 * j * (W + 5)), 40 + H + (2 * i * (H + 5)));
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+
+        return this;
+    }
+
+    method void dispose() {
+        do ball.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void handleBallOut() {
+        do ball.erase();
+        do ball.resetPosition();
+        do ball.draw();
+
+        do paddle.erase();
+        do paddle.resetPosition();
+        do paddle.draw();
+
+        do Sys.wait(500);
+        return;
+    }
+
+    method void handleBallBrickCollisions() {
+        var int i;
+        var Brick brick;
+
+        let i = 0;
+        let numBricksAlive = 0;
+
+        while (i < numBricks) {
+            let brick = bricks[i];
+            do ball.collide(brick);
+            if (brick.isAlive()){
+                let numBricksAlive = numBricksAlive + 1;
+            }
+            let i = i + 1;
+        }
+
+        return;
+    }
+
+    method void gameStep() {
+        var int ballX, paddleX, paddleW;
+
+        let ballX = ball.getX();
+        let paddleX = paddle.getX();
+        let paddleW = paddle.getW();
+
+        // Check for ball-paddle collisions
+        if (ball.hitBottom()) {
+            if ((ballX < (paddleX - paddleW)) | ((paddleX + paddleW) < ballX)) {
+                do handleBallOut();
+            } else {
+                do ball.setVX(paddle.getVX());
+            }
+        }
+
+        do handleBallBrickCollisions();
+
+        do paddle.animationStep();
+        do ball.animationStep();
+
+        do Output.moveCursor(0, 0);
+        do Output.printString(scoreMessage);
+        do Output.printInt(numBricks - numBricksAlive);
+
+        return;
+    }
+
+    method void run() {
+        var char key;  // the key currently pressed by the user
+        var boolean exit;
+        let exit = false;
+
+        do handleBallOut();
+
+        let scoreMessage = "Score: ";
+        let numBricksAlive = numBricks;
+
+        while (numBricksAlive > 0) {
+            let key = Keyboard.keyPressed();
+
+            if (key = 130) { do paddle.moveLeft(); }    // left arrow
+            if (key = 132) { do paddle.moveRight(); }    // right arrow
+
+            do gameStep();
+        } // while
+
+        do Screen.clearScreen();
+        do Output.moveCursor(12, 28);
+        do Output.printString("You Won!");
+
+        return;
+    }
+}
+
+
+

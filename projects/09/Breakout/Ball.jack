@@ -1,0 +1,141 @@
+
+class Ball {
+    field int x, y;
+    field int vx, vy;
+    static int R;
+
+    constructor Ball new() {
+        let R = 4;
+        let vx = 1;
+        let vy = 2;
+        do resetPosition();
+        do draw();
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void draw() {
+        do Screen.setColor(true);
+        do Screen.drawCircle(x, y, R);
+        return;
+    }
+
+    method void erase() {
+        do Screen.setColor(false);
+        do Screen.drawCircle(x, y, R);
+        return;
+    }
+
+    method int getX() {
+        return x;
+    }
+
+    method void setVX(int paddleVX) {
+        if (paddleVX > 0) {
+            let vx = vx + 1;
+        }
+        if (paddleVX < 0) {
+            let vx = vx - 1;
+        }
+        if (vx > 2) {
+            let vx = 2;
+        }
+        if (vx < -2) {
+            let vx = -2;
+        }
+        return;
+    }
+
+    method bool hitBottom() {
+        return (y + R) = 255;
+    }
+
+    method void resetPosition() {
+        let y = 140;
+        let vy = -1;
+
+        let x = x + 100;
+
+        while (x > 255) {
+            let x = x - 255;
+        }
+
+        let x = 128 + x;
+
+        if (x < 255) {
+            let vx = 1;
+        } else {
+            let vx = -1;
+        }
+
+        if ((x + R) > 511) {
+            let x = 510 - R;
+        }
+        if ((x - R) < 0) {
+            let x = R + 1;
+        }
+
+        return;
+    }
+
+    method void animationStep() {
+        do erase();
+
+        let x = x + vx;
+        let y = y + vy;
+
+        if ((x + R) > 510) {
+            let x = 511 - R;
+            let vx = -vx;
+        }
+
+        if ((x - R) < 1){
+            let x = R;
+            let vx = -vx;
+        }
+
+        if ((y - R) < 1) {
+            let y = R;
+            let vy = -vy;
+        }
+
+        if ((y + R) > 254) {
+            let y = 255 - R;
+            let vy = -vy;
+        }
+
+        do draw();
+        return;
+    }
+
+    method void collide(Brick brick) {
+        var int H, W, bX, bY, xCenterDist, yCenterDist;
+        var boolean brickAlive;
+
+        let H = Brick.getH();
+        let W = Brick.getW();
+
+        let bX = brick.getX();
+        let bY = brick.getY();
+        let brickAlive = brick.isAlive();
+
+        let xCenterDist = Math.abs(x - bX);
+        let yCenterDist = Math.abs(y - bY);
+
+        if ((xCenterDist < (R + W)) & (yCenterDist < (R + H))) {
+            if (brickAlive) {
+                do brick.kill();
+                if (xCenterDist < (R + W - 2)) {
+                    let vy = -vy;
+                } else {
+                    let vx = -vx;
+                }
+            }
+        }
+        return;
+    }
+}

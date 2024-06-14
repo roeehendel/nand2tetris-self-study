@@ -1,0 +1,72 @@
+
+class Brick {
+    field boolean alive;
+    field int x;
+    field int y;
+    static int W;
+    static int H;
+
+    constructor Brick new(int Ax, int Ay) {
+        let x = Ax;
+        let y = Ay;
+        let alive = true;
+
+        do draw();
+        return this;
+    }
+
+    function void init() {
+        let W = 20;
+        let H = 5;
+        return;
+    }
+
+    function int getW() {
+        return W;
+    }
+
+    function int getH() {
+        return H;
+    }
+
+    method int getX() {
+        return x;
+    }
+
+    method int getY() {
+        return y;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void draw() {
+        do Screen.setColor(true);
+        do dr();
+        return;
+    }
+
+    method void kill() {
+        let alive = false;
+        do erase();
+        return;
+    }
+
+    method boolean isAlive() {
+        return alive;
+    }
+
+    method void erase() {
+        do Screen.setColor(false);
+        do dr();
+        return;
+    }
+
+    method void dr() {
+        do Screen.drawRectangle(x - W, y - H, x + W, y + H);
+        return;
+    }
+
+}
